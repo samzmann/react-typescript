@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './App.css'
+import Message from './Message'
 
 const asciiChars =
   '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
@@ -8,44 +9,11 @@ const App = () => {
   const [encrypted, setEncrypted] = useState('')
   const [decrypted, setDecrypted] = useState('')
   const [key, setKey] = useState()
+  const [messages, setMessages] = useState()
 
   useEffect(() => {
     console.log(asciiChars)
   }, [])
-
-  const cypher = (cypherInput: string) => {
-    let encrypted = ''
-    for (let i = 0; i < cypherInput.length; i++) {
-      const index = asciiChars.indexOf(cypherInput[i])
-      const offset = 5
-      let newIndex
-      if (index + offset < asciiChars.length) {
-        newIndex = index + offset
-      } else {
-        newIndex = index + offset - asciiChars.length
-      }
-      const newChar = asciiChars[newIndex]
-      encrypted += newChar
-    }
-    return encrypted
-  }
-
-  const decypher = (cypheredInput: string) => {
-    let decrypted = ''
-    for (let i = 0; i < cypheredInput.length; i++) {
-      const index = asciiChars.indexOf(cypheredInput[i])
-      const offset = 5
-      let newIndex
-      if (index >= offset) {
-        newIndex = index - offset
-      } else {
-        newIndex = asciiChars.length - (offset - index)
-      }
-      const newChar = asciiChars[newIndex]
-      decrypted += newChar
-    }
-    return setDecrypted(decrypted)
-  }
 
   const randomCypher = (input: string) => {
     const randomOffsets: number[] = []
@@ -69,11 +37,12 @@ const App = () => {
     }
   }
 
-  const randomDecypher = (input: string) => {
+  // @ts-ignore
+  const randomDecypher = ({ message, key }) => {
     let decrypted = ''
-    console.log(input, key)
-    for (let i = 0; i < input.length; i++) {
-      const index = asciiChars.indexOf(input[i])
+    console.log(message, key)
+    for (let i = 0; i < message.length; i++) {
+      const index = asciiChars.indexOf(message[i])
       const offset = key[i]
       let newIndex
       if (index >= offset) {
@@ -84,7 +53,7 @@ const App = () => {
       const newChar = asciiChars[newIndex]
       decrypted += newChar
     }
-    return setDecrypted(decrypted)
+    return decrypted
   }
 
   const onChangeText = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,6 +63,20 @@ const App = () => {
     setEncrypted(encrypted.encrypted)
     setKey(encrypted.key)
   }
+
+  const sendMessage = () => {
+    const newMessage = {
+      message: encrypted,
+      key,
+    }
+    const currentMessages = messages ? [...messages] : []
+    currentMessages.push(newMessage)
+    setMessages(currentMessages)
+    setEncrypted('')
+    setKey(undefined)
+  }
+
+  console.log(messages)
 
   return (
     <div style={{ padding: 20 }}>
@@ -113,11 +96,24 @@ const App = () => {
           border: '2px dotted darkgoldenrod',
           cursor: 'pointer',
         }}
-        onClick={() => randomDecypher(encrypted)}
+        onClick={sendMessage}
       >
-        decrypt message
+        send
       </div>
       <div>{decrypted}</div>
+      {messages &&
+        messages.map((m: any) => {
+          console.log(m)
+          return (
+            // @ts-ignore
+            <Message
+              decypher={randomDecypher}
+              message={m.message}
+              key={m.message} // react list key
+              decryptKey={m.key}
+            />
+          )
+        })}
     </div>
   )
 }
