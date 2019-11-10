@@ -1,5 +1,17 @@
+@import url('https://fonts.googleapis.com/css?family=Share+Tech+Mono&display=swap');
+
+body {
+  background-color: aquamarine;
+  font-family: 'Share Tech Mono', monospace;
+  background-color: #282c34;
+  color: darkgoldenrod;
+  display: flex;
+  flex: 1;
+}
+
 .App {
-  text-align: center;
+  flex: 1;
+  align-items: stretch;
 }
 
 .App-logo {

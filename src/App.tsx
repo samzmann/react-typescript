@@ -1,23 +1,79 @@
-import React from 'react'
-import logo from './logo.svg'
+import React, { useEffect, useState } from 'react'
 import './App.css'
 
-function App() {
-  const firstName: string = 'Samuel'
-  const age: number = 25
+const asciiChars =
+  '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+
+const App = () => {
+  const [encrypted, setEncrypted] = useState('')
+  const [decrypted, setDecrypted] = useState('')
+
+  useEffect(() => {
+    console.log(asciiChars)
+  }, [])
+
+  const cypher = (cypherInput: string) => {
+    let encrypted = ''
+    for (let i = 0; i < cypherInput.length; i++) {
+      const index = asciiChars.indexOf(cypherInput[i])
+      const offset = 5
+      let newIndex
+      if (index + offset < asciiChars.length) {
+        newIndex = index + offset
+      } else {
+        newIndex = index + offset - asciiChars.length
+      }
+      const newChar = asciiChars[newIndex]
+      encrypted += newChar
+    }
+    return encrypted
+  }
+
+  const decypher = (cypheredInput: string) => {
+    let decrypted = ''
+    for (let i = 0; i < cypheredInput.length; i++) {
+      const index = asciiChars.indexOf(cypheredInput[i])
+      const offset = 5
+      let newIndex
+      if (index >= offset) {
+        newIndex = index - offset
+      } else {
+        newIndex = asciiChars.length - (offset - index)
+      }
+      const newChar = asciiChars[newIndex]
+      decrypted += newChar
+    }
+    return setDecrypted(decrypted)
+  }
+
+  const onChangeText = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value
+    const encrypted = cypher(newValue)
+    setEncrypted(encrypted)
+  }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          The value <u>{firstName}</u> is of type:{' '}
-          <code>{typeof firstName}</code>
-        </p>
-        <p>
-          The value <u>{age}</u> is of type: <code>{typeof age}</code>
-        </p>
-      </header>
+    <div style={{ padding: 20 }}>
+      <input
+        style={{
+          padding: 10,
+          backgroundColor: '#282c34',
+          color: 'darkgoldenrod',
+        }}
+        onChange={onChangeText}
+      />
+      <div style={{ marginTop: 20 }}>{encrypted}</div>
+      <div
+        style={{
+          padding: 20,
+          border: '2px dotted darkgoldenrod',
+          cursor: 'pointer',
+        }}
+        onClick={() => decypher(encrypted)}
+      >
+        decrypt message
+      </div>
+      <div>{decrypted}</div>
     </div>
   )
 }
