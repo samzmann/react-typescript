@@ -7,6 +7,7 @@ const asciiChars =
 const App = () => {
   const [encrypted, setEncrypted] = useState('')
   const [decrypted, setDecrypted] = useState('')
+  const [key, setKey] = useState()
 
   useEffect(() => {
     console.log(asciiChars)
@@ -46,10 +47,52 @@ const App = () => {
     return setDecrypted(decrypted)
   }
 
+  const randomCypher = (input: string) => {
+    const randomOffsets: number[] = []
+    let encrypted = ''
+    for (let i = 0; i < input.length; i++) {
+      const index = asciiChars.indexOf(input[i])
+      const offset = Math.floor(Math.random() * asciiChars.length)
+      randomOffsets.push(offset)
+      let newIndex
+      if (index + offset < asciiChars.length) {
+        newIndex = index + offset
+      } else {
+        newIndex = index + offset - asciiChars.length
+      }
+      const newChar = asciiChars[newIndex]
+      encrypted += newChar
+    }
+    return {
+      encrypted,
+      key: randomOffsets,
+    }
+  }
+
+  const randomDecypher = (input: string) => {
+    let decrypted = ''
+    console.log(input, key)
+    for (let i = 0; i < input.length; i++) {
+      const index = asciiChars.indexOf(input[i])
+      const offset = key[i]
+      let newIndex
+      if (index >= offset) {
+        newIndex = index - offset
+      } else {
+        newIndex = asciiChars.length - (offset - index)
+      }
+      const newChar = asciiChars[newIndex]
+      decrypted += newChar
+    }
+    return setDecrypted(decrypted)
+  }
+
   const onChangeText = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value
-    const encrypted = cypher(newValue)
-    setEncrypted(encrypted)
+    const encrypted = randomCypher(newValue)
+    console.log(encrypted)
+    setEncrypted(encrypted.encrypted)
+    setKey(encrypted.key)
   }
 
   return (
@@ -66,10 +109,11 @@ const App = () => {
       <div
         style={{
           padding: 20,
+          margin: 10,
           border: '2px dotted darkgoldenrod',
           cursor: 'pointer',
         }}
-        onClick={() => decypher(encrypted)}
+        onClick={() => randomDecypher(encrypted)}
       >
         decrypt message
       </div>
